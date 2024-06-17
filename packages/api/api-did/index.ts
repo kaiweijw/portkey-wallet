@@ -24,6 +24,7 @@ import managerApi from './manager';
 import referralApi from './referral';
 import depositApi from './deposit';
 import redPackageApi from './red-package';
+import mintApi from './mint';
 
 export const DEFAULT_METHOD = 'POST';
 
@@ -66,6 +67,7 @@ export const EXPAND_APIS = {
   referral: referralApi,
   deposit: depositApi,
   redPackage: redPackageApi,
+  mint: mintApi,
 };
 
 export type BASE_REQ_TYPES = {
