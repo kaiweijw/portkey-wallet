@@ -19,4 +19,4 @@ jobs:
         with:
           args: >
             -Dsonar.projectKey=testproject
-            -Dsonar.exclusions=packages/mobile-app-did/
+            -Dsonar.exclusions=packages/mobile-app-did/**
