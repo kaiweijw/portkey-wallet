@@ -11,30 +11,65 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
+
       - name: Install dependencies
         run: |
           cd packages/mobile-app-did
           yarn install
+
       - name: Set up JDK 11
         uses: actions/setup-java@v4
         with:
           java-version: '11'
           distribution: 'temurin'
+
+      - name: Create .env file
+        run: |
+          cp packages/mobile-app-did/.env.example packages/mobile-app-did/.env
+          sed -i "s|PORT_KEY_CODE *=.*|PORT_KEY_CODE=${{ secrets.PORT_KEY_CODE }}|" packages/mobile-app-did/.env
+          sed -i "s|BACKEND_PUBKEY *=.*|BACKEND_PUBKEY=${{ secrets.BACKEND_PUBKEY }}|" packages/mobile-app-did/.env
+          sed -i "s|VERSION *=.*|VERSION=${{ secrets.VERSION }}|" packages/mobile-app-did/.env
+          sed -i "s|COMMUNICATE_APP_PRIVITEKEY *=.*|COMMUNICATE_APP_PRIVITEKEY=${{ secrets.COMMUNICATE_APP_PRIVITEKEY }}|" packages/mobile-app-did/.env
+          sed -i "s|RELEASE_STORE_FILE *=.*|RELEASE_STORE_FILE=${{ secrets.RELEASE_STORE_FILE }}|" packages/mobile-app-did/.env
+          sed -i "s|RELEASE_KEY_ALIAS *=.*|RELEASE_KEY_ALIAS=${{ secrets.RELEASE_KEY_ALIAS }}|" packages/mobile-app-did/.env
+          sed -i "s|RELEASE_STORE_PASSWORD *=.*|RELEASE_STORE_PASSWORD=${{ secrets.RELEASE_STORE_PASSWORD }}|" packages/mobile-app-did/.env
+          sed -i "s|RELEASE_KEY_PASSWORD *=.*|RELEASE_KEY_PASSWORD=${{ secrets.RELEASE_KEY_PASSWORD }}|" packages/mobile-app-did/.env
+          sed -i "s|LOCAL_STORE_FILE *=.*|LOCAL_STORE_FILE=${{ secrets.LOCAL_STORE_FILE }}|" packages/mobile-app-did/.env
+          sed -i "s|GOOGLE_WEB_CLIENT_ID *=.*|GOOGLE_WEB_CLIENT_ID=${{ secrets.GOOGLE_WEB_CLIENT_ID }}|" packages/mobile-app-did/.env
+          sed -i "s|GOOGLE_IOS_CLIENT_ID *=.*|GOOGLE_IOS_CLIENT_ID=${{ secrets.GOOGLE_IOS_CLIENT_ID }}|" packages/mobile-app-did/.env
+          sed -i "s|GOOGLE_ANDROID_CLIENT_ID *=.*|GOOGLE_ANDROID_CLIENT_ID=${{ secrets.GOOGLE_ANDROID_CLIENT_ID }}|" packages/mobile-app-did/.env
+
+      - name: Generate Keystore (for development purposes)
+        env:
+          STORE_FILE: ${{ secrets.RELEASE_STORE_FILE }}
+          KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
+          STORE_PASSWORD: ${{ secrets.RELEASE_STORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
+        run: |
+          keytool -genkeypair -v \
+            -keystore packages/mobile-app-did/android/app/$STORE_FILE \
+            -alias $KEY_ALIAS \
+            -keyalg RSA -keysize 2048 -validity 10000 \
+            -storepass $STORE_PASSWORD \
+            -keypass $KEY_PASSWORD \
+            -dname "CN=Your Name, OU=Your Org, O=Your Company, L=Your City, ST=Your State, C=Your Country"
+
       - name: Build Android Release
         run: |
           cd packages/mobile-app-did
-          chmod +x appcenter-pre-build.sh
-          ./appcenter-pre-build.sh
           yarn build:apk-test1
+
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
         with:
           name: app-release.apk
-          path: packages/mobile-app-did/android/app/build/outputs/apk/release/
+          path: packages/mobile-app-did/android/app/build/outputs/apk/release/app-release.apk
