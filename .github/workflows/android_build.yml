@@ -30,6 +30,8 @@ jobs:
       - name: Build Android Release
         run: |
           cd packages/mobile-app-did
+          chmod +x appcenter-pre-build.sh
+          ./appcenter-pre-build.sh
           yarn build:apk-test1
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
