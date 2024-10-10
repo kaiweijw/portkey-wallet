@@ -81,8 +81,9 @@ jobs:
         run: |
           ls -R packages/mobile-app-did/android/app/build/outputs/apk/
 
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v3
+      - name: Upload APK Artifacts
+        uses: actions/upload-artifact@v4
         with:
-          name: app-release.apk
-          path: packages/mobile-app-did/android/app/build/outputs/apk/release/app-release.apk
+          name: apk-files
+          path: packages/mobile-app-did/android/app/build/outputs/apk/**/*.apk
+          retention-days: 3
