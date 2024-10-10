@@ -77,6 +77,10 @@ jobs:
           cd packages/mobile-app-did
           yarn build:apk-test1
 
+      - name: List files in APK output directory
+        run: |
+          ls -R packages/mobile-app-did/android/app/build/outputs/apk/
+
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
         with:
