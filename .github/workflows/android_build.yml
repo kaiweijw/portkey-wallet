@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: portkey-wallet-kw-runner
     permissions:
       contents: write
 
@@ -90,6 +90,9 @@ jobs:
             -storepass $STORE_PASSWORD \
             -keypass $KEY_PASSWORD \
             -dname "CN=Your Name, OU=Your Org, O=Your Company, L=Your City, ST=Your State, C=Your Country"
+
+      - name: Create Directory for ruby
+        run: sudo mkdir /opt/hostedtoolcache && sudo chown -R runner:runner /opt/hostedtoolcache
 
       # Setup Ruby while Caching Gems
       - name: Install Ruby
