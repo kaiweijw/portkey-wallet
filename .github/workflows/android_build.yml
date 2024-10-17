@@ -74,6 +74,7 @@ jobs:
 
       - name: Setup Environment
         run: yarn handle-network network-test1
+        working-directory: packages/mobile-app-did
 
       - name: Generate Keystore (for development purposes)
         env:
