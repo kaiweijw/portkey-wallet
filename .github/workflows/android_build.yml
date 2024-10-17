@@ -128,9 +128,9 @@ jobs:
         run: |
           ls -R packages/mobile-app-did/android/app/build/outputs/apk/
 
-      # - name: Upload APK Artifacts
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: apk-files
-      #     path: packages/mobile-app-did/android/app/build/outputs/apk/**/*.apk
-      #     retention-days: 3
+      - name: Upload APK Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: apk-files
+          path: packages/mobile-app-did/android/app/build/outputs/apk/**/*.apk
+          retention-days: 3
