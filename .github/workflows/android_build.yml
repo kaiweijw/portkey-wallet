@@ -26,14 +26,14 @@ jobs:
       - name: Cache Gradle Wrapper
         uses: actions/cache@v4
         with:
-          path: packages/mobile-app-did/android
-          key: ${{ runner.os }}-gradle-wrapper-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
+          path: ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-wrapper-${{ hashFiles('packages/mobile-app-did/android/gradle/wrapper/gradle-wrapper.properties') }}
 
       - name: Cache Gradle Dependencies
         uses: actions/cache@v4
         with:
-          path: packages/mobile-app-did/android
-          key: ${{ runner.os }}-gradle-caches-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-caches-${{ hashFiles('packages/mobile-app-did/android/gradle/wrapper/gradle-wrapper.properties') }}
           restore-keys: |
             ${{ runner.os }}-gradle-caches-
 
