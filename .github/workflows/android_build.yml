@@ -133,4 +133,4 @@ jobs:
         with:
           name: apk-files
           path: packages/mobile-app-did/android/app/build/outputs/apk/**/*.apk
-          retention-days: 3
+          retention-days: 1
