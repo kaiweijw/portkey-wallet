@@ -51,10 +51,10 @@ jobs:
           java-version: '11'
           distribution: 'temurin'
 
-      # - name: Setup Android SDK
-      #   uses: android-actions/setup-android@v3
-      #   with:
-      #     cmdline-tools-version: 8512546
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          cmdline-tools-version: 8512546
 
       - name: Create .env file
         run: |
