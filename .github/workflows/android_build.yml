@@ -22,6 +22,21 @@ jobs:
           node-version: '18'
       - name: Install build tools
         run: sudo apt-get install -y build-essential
+
+      - name: Cache Gradle Wrapper
+        uses: actions/cache@v4
+        with:
+          path: ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-wrapper-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
+
+      - name: Cache Gradle Dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-caches-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-caches-
+
       - name: Install yarn
         run: npm install -g yarn
 
@@ -30,16 +45,16 @@ jobs:
           cd packages/mobile-app-did
           yarn install
 
-      - name: Set up JDK 11
-        uses: actions/setup-java@v4
-        with:
-          java-version: '11'
-          distribution: 'temurin'
+      # - name: Set up JDK 11
+      #   uses: actions/setup-java@v4
+      #   with:
+      #     java-version: '11'
+      #     distribution: 'temurin'
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-        with:
-          cmdline-tools-version: 8512546
+      # - name: Setup Android SDK
+      #   uses: android-actions/setup-android@v3
+      #   with:
+      #     cmdline-tools-version: 8512546
 
       - name: Create .env file
         run: |
@@ -57,6 +72,9 @@ jobs:
           sed -i "s|GOOGLE_IOS_CLIENT_ID *=.*|GOOGLE_IOS_CLIENT_ID=${{ secrets.GOOGLE_IOS_CLIENT_ID }}|" packages/mobile-app-did/.env
           sed -i "s|GOOGLE_ANDROID_CLIENT_ID *=.*|GOOGLE_ANDROID_CLIENT_ID=${{ secrets.GOOGLE_ANDROID_CLIENT_ID }}|" packages/mobile-app-did/.env
 
+      - name: Setup Environment
+        run: yarn handle-network network-test1
+
       - name: Generate Keystore (for development purposes)
         env:
           STORE_FILE: ${{ secrets.RELEASE_STORE_FILE }}
@@ -72,18 +90,40 @@ jobs:
             -keypass $KEY_PASSWORD \
             -dname "CN=Your Name, OU=Your Org, O=Your Company, L=Your City, ST=Your State, C=Your Country"
 
-      - name: Build Android Release
-        run: |
-          cd packages/mobile-app-did
-          yarn build:apk-test1
+      # Setup Ruby while Caching Gems
+      - name: Install Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.3
+          bundler-cache: true
+
+      # Install fastlane
+      - name: Install Fastlane
+        run: gem install fastlane
+        working-directory: packages/mobile-app-did/android
+
+      # - name: Build Android Release
+      #   run: |
+      #     cd packages/mobile-app-did
+      #     yarn build:apk-test1
+
+      - name: Build android release
+        uses: maierj/fastlane-action@v3.1.0
+        with:
+          lane: 'beta'
+          bundler-cache: true
+          working-directory: packages/mobile-app-did/android
+        env:
+          ANDROID_KEYSTORE_FILE: ${{ secrets.RELEASE_STORE_FILE }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.RELEASE_STORE_PASSWORD }}
 
       - name: List files in APK output directory
         run: |
           ls -R packages/mobile-app-did/android/app/build/outputs/apk/
 
-      - name: Upload APK Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: apk-files
-          path: packages/mobile-app-did/android/app/build/outputs/apk/**/*.apk
-          retention-days: 3
+      # - name: Upload APK Artifacts
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: apk-files
+      #     path: packages/mobile-app-did/android/app/build/outputs/apk/**/*.apk
+      #     retention-days: 3
