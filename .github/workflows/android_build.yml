@@ -103,6 +103,10 @@ jobs:
         run: gem install fastlane
         working-directory: packages/mobile-app-did/android
 
+      - name: Bundle Install
+        run: bundle install
+        working-directory: packages/mobile-app-did/android
+
       # - name: Build Android Release
       #   run: |
       #     cd packages/mobile-app-did
