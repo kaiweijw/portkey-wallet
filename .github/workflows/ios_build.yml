@@ -1,4 +1,4 @@
-name: Android Beta Build
+name: iOS Beta Build
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    runs-on: portkey-wallet-kw-runner
+    runs-on: macos-latest
     permissions:
       contents: write
 
@@ -16,26 +16,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Install XCodes
+        run: |
+          brew install xcodesorg/made/xcodes
+          xcodes install 15.4
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-      - name: Install build tools
-        run: sudo apt-get install -y build-essential
-
-      - name: Cache Gradle Wrapper
-        uses: actions/cache@v4
-        with:
-          path: ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-wrapper-${{ hashFiles('packages/mobile-app-did/android/gradle/wrapper/gradle-wrapper.properties') }}
-
-      - name: Cache Gradle Dependencies
-        uses: actions/cache@v4
-        with:
-          path: ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-caches-${{ hashFiles('packages/mobile-app-did/android/gradle/wrapper/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-caches-
 
       - name: Install yarn
         run: npm install -g yarn
@@ -44,17 +33,6 @@ jobs:
         run: |
           cd packages/mobile-app-did
           yarn install
-
-      - name: Set up JDK 11
-        uses: actions/setup-java@v4
-        with:
-          java-version: '11'
-          distribution: 'temurin'
-
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-        with:
-          cmdline-tools-version: 8512546
 
       - name: Create .env file
         run: |
@@ -76,23 +54,8 @@ jobs:
         run: yarn handle-network network-test1
         working-directory: packages/mobile-app-did
 
-      - name: Generate Keystore (for development purposes)
-        env:
-          STORE_FILE: ${{ secrets.RELEASE_STORE_FILE }}
-          KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
-          STORE_PASSWORD: ${{ secrets.RELEASE_STORE_PASSWORD }}
-          KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
-        run: |
-          keytool -genkeypair -v \
-            -keystore packages/mobile-app-did/android/app/$STORE_FILE \
-            -alias $KEY_ALIAS \
-            -keyalg RSA -keysize 2048 -validity 10000 \
-            -storepass $STORE_PASSWORD \
-            -keypass $KEY_PASSWORD \
-            -dname "CN=Your Name, OU=Your Org, O=Your Company, L=Your City, ST=Your State, C=Your Country"
-
-      - name: Create Directory for ruby
-        run: sudo mkdir /opt/hostedtoolcache && sudo chown -R runner:runner /opt/hostedtoolcache
+      # - name: Create Directory for ruby
+      #   run: sudo mkdir /opt/hostedtoolcache && sudo chown -R runner:runner /opt/hostedtoolcache
 
       # Setup Ruby while Caching Gems
       - name: Install Ruby
@@ -104,11 +67,11 @@ jobs:
       # Install fastlane
       - name: Install Fastlane
         run: gem install fastlane
-        working-directory: packages/mobile-app-did/android
+        working-directory: packages/mobile-app-did/ios
 
       - name: Bundle Install
         run: bundle install
-        working-directory: packages/mobile-app-did/android
+        working-directory: packages/mobile-app-did/ios
 
       # - name: Build Android Release
       #   run: |
@@ -118,19 +81,5 @@ jobs:
       - name: Build android release
         uses: maierj/fastlane-action@v3.1.0
         with:
-          lane: 'beta'
-          subdirectory: packages/mobile-app-did/android
-        env:
-          ANDROID_KEYSTORE_FILE: ${{ secrets.RELEASE_STORE_FILE }}
-          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.RELEASE_STORE_PASSWORD }}
-
-      - name: List files in APK output directory
-        run: |
-          ls -R packages/mobile-app-did/android/app/build/outputs/apk/
-
-      - name: Upload APK Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: apk-files
-          path: packages/mobile-app-did/android/app/build/outputs/apk/**/*.apk
-          retention-days: 1
+          lane: 'build_ipa'
+          subdirectory: packages/mobile-app-did/ios
