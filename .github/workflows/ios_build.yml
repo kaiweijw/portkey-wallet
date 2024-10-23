@@ -34,22 +34,6 @@ jobs:
           cd packages/mobile-app-did
           yarn install
 
-      - name: Create .env file
-        run: |
-          cp packages/mobile-app-did/.env.example packages/mobile-app-did/.env
-          sed -i "s|PORT_KEY_CODE *=.*|PORT_KEY_CODE=${{ secrets.PORT_KEY_CODE }}|" packages/mobile-app-did/.env
-          sed -i "s|BACKEND_PUBKEY *=.*|BACKEND_PUBKEY=${{ secrets.BACKEND_PUBKEY }}|" packages/mobile-app-did/.env
-          sed -i "s|VERSION *=.*|VERSION=${{ secrets.VERSION }}|" packages/mobile-app-did/.env
-          sed -i "s|COMMUNICATE_APP_PRIVITEKEY *=.*|COMMUNICATE_APP_PRIVITEKEY=${{ secrets.COMMUNICATE_APP_PRIVITEKEY }}|" packages/mobile-app-did/.env
-          sed -i "s|RELEASE_STORE_FILE *=.*|RELEASE_STORE_FILE=${{ secrets.RELEASE_STORE_FILE }}|" packages/mobile-app-did/.env
-          sed -i "s|RELEASE_KEY_ALIAS *=.*|RELEASE_KEY_ALIAS=${{ secrets.RELEASE_KEY_ALIAS }}|" packages/mobile-app-did/.env
-          sed -i "s|RELEASE_STORE_PASSWORD *=.*|RELEASE_STORE_PASSWORD=${{ secrets.RELEASE_STORE_PASSWORD }}|" packages/mobile-app-did/.env
-          sed -i "s|RELEASE_KEY_PASSWORD *=.*|RELEASE_KEY_PASSWORD=${{ secrets.RELEASE_KEY_PASSWORD }}|" packages/mobile-app-did/.env
-          sed -i "s|LOCAL_STORE_FILE *=.*|LOCAL_STORE_FILE=${{ secrets.LOCAL_STORE_FILE }}|" packages/mobile-app-did/.env
-          sed -i "s|GOOGLE_WEB_CLIENT_ID *=.*|GOOGLE_WEB_CLIENT_ID=${{ secrets.GOOGLE_WEB_CLIENT_ID }}|" packages/mobile-app-did/.env
-          sed -i "s|GOOGLE_IOS_CLIENT_ID *=.*|GOOGLE_IOS_CLIENT_ID=${{ secrets.GOOGLE_IOS_CLIENT_ID }}|" packages/mobile-app-did/.env
-          sed -i "s|GOOGLE_ANDROID_CLIENT_ID *=.*|GOOGLE_ANDROID_CLIENT_ID=${{ secrets.GOOGLE_ANDROID_CLIENT_ID }}|" packages/mobile-app-did/.env
-
       - name: Setup Environment
         run: yarn handle-network network-test1
         working-directory: packages/mobile-app-did
